@@ -1,0 +1,66 @@
+{
+  "trainees": [
+    {
+      "id": 1,
+      "firstName": "John",
+      "lastName": "Smith",
+      "username": "John.Smith",
+      "password": "aB12345678",
+      "active": true,
+      "dateOfBirth": "1995-05-10",
+      "address": "London"
+    },
+    {
+      "id": 2,
+      "firstName": "Emma",
+      "lastName": "Davis",
+      "username": "Emma.Davis",
+      "password": "cD98765432",
+      "active": true,
+      "dateOfBirth": "1998-03-22",
+      "address": "Manchester"
+    }
+  ],
+
+  "trainers": [
+    {
+      "id": 1,
+      "firstName": "Mike",
+      "lastName": "Brown",
+      "username": "Mike.Brown",
+      "password": "zX11223344",
+      "active": true,
+      "specialization": "FITNESS"
+    },
+    {
+      "id": 2,
+      "firstName": "Olena",
+      "lastName": "Petrenko",
+      "username": "Olena.Petrenko",
+      "password": "yW55667788",
+      "active": true,
+      "specialization": "YOGA"
+    }
+  ],
+
+  "trainings": [
+    {
+      "id": 1,
+      "traineeId": 1,
+      "trainerId": 1,
+      "trainingName": "Morning Fitness",
+      "trainingType": "FITNESS",
+      "trainingDate": "2026-01-10",
+      "trainingDuration": 60
+    },
+    {
+      "id": 2,
+      "traineeId": 2,
+      "trainerId": 2,
+      "trainingName": "Evening Yoga",
+      "trainingType": "YOGA",
+      "trainingDate": "2026-01-12",
+      "trainingDuration": 45
+    }
+  ]
+}
