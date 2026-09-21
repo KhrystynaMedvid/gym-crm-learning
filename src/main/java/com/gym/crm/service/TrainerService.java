@@ -1,33 +1,27 @@
 package com.gym.crm.service;
 
-import com.gym.crm.dao.TraineeDao;
-import com.gym.crm.dao.TrainerDao;
-import com.gym.crm.model.Trainer;
-import com.gym.crm.storage.TrainerStorage;
+import com.gym.crm.entity.Trainer;
+import com.gym.crm.entity.User;
+import com.gym.crm.repository.TraineeRepository;
+import com.gym.crm.repository.TrainerRepository;
+import com.gym.crm.repository.UserRepository;
 import com.gym.crm.util.UsernamePasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class TrainerService {
-    private TrainerDao trainerDao;
-    private TraineeDao traineeDao;
-    private TrainerStorage trainerStorage;
+    private TrainerRepository trainerRepository;
+    private TraineeRepository traineeRepository;
+    private UserRepository userRepository;
     private UsernamePasswordGenerator usernamePasswordGenerator;
 
-    @Autowired
-    public void setTrainerDao(TrainerDao trainerDao) {
-        this.trainerDao = trainerDao;
-    }
-
-    @Autowired
-    public void setTraineeDao(TraineeDao traineeDao) {
-        this.traineeDao = traineeDao;
-    }
-
-    @Autowired
-    public void setTrainerStorage(TrainerStorage trainerStorage) {
-        this.trainerStorage = trainerStorage;
+    public TrainerService(TrainerRepository trainerRepository, TraineeRepository traineeRepository, UserRepository userRepository) {
+        this.trainerRepository = trainerRepository;
+        this.traineeRepository = traineeRepository;
+        this.userRepository = userRepository;
     }
 
     @Autowired
@@ -38,48 +32,48 @@ public class TrainerService {
     public Trainer createTrainer(Trainer trainer){
         validate(trainer);
 
-        trainer.setId(trainerStorage.generateId());
+        User user = trainer.getUser();
         String username = usernamePasswordGenerator.generateUsername(
-                trainer.getFirstName(),
-                trainer.getLastName(),
-                u -> trainerDao.exists(u) || traineeDao.exists(u)
+                user.getFirstName(),
+                user.getLastName(),
+                u -> userRepository.existsByUsername(u)
         );
 
-        trainer.setUsername(username);
-        trainer.setPassword(usernamePasswordGenerator.generatePassword());
-        trainer.setActive(true);
+        user.setUsername(username);
+        user.setPassword(usernamePasswordGenerator.generatePassword());
+        user.setActive(true);
 
-        trainerDao.save(trainer);
+        trainerRepository.save(trainer);
         return trainer;
     }
 
     public void updateTrainer(Trainer trainer){
         validateUpdate(trainer);
-        trainerDao.update(trainer);
+        trainerRepository.save(trainer);
     }
 
-    public Trainer getById(Long id){
+    public Optional<Trainer> getById(Long id){
         if (id == null) throw new IllegalArgumentException("Id is null");
-        return trainerDao.findById(id);
+        return trainerRepository.findById(id);
     }
 
     public Trainer getByUsername(String username){
         if (isBlank(username)) throw new IllegalArgumentException("Username is blank");
-        return trainerDao.findByUsername(username);
+        return trainerRepository.findByUserUsername(username);
     }
 
 
     private void validate(Trainer trainer){
         if (trainer == null) throw new IllegalArgumentException("Trainer is null");
-        if (isBlank(trainer.getFirstName()))
+        if (isBlank(trainer.getUser().getFirstName()))
             throw new IllegalArgumentException("First name is blank");
-        if (isBlank(trainer.getLastName()))
+        if (isBlank(trainer.getUser().getLastName()))
             throw new IllegalArgumentException("Last name is blank");
     }
 
     private void validateUpdate(Trainer trainer){
         if (trainer == null || trainer.getId() == null) throw new IllegalArgumentException("Invalid trainer");
-        if (isBlank(trainer.getUsername())) throw new IllegalArgumentException("Username blank");
+        if (isBlank(trainer.getUser().getUsername())) throw new IllegalArgumentException("Username blank");
     }
 
     private boolean isBlank(String s) {
