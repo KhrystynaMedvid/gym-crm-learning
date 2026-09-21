@@ -1,33 +1,31 @@
 package com.gym.crm.service;
 
-import com.gym.crm.dao.TraineeDao;
-import com.gym.crm.dao.TrainerDao;
-import com.gym.crm.model.Trainee;
-import com.gym.crm.storage.TraineeStorage;
+import com.gym.crm.entity.Trainee;
+import com.gym.crm.entity.User;
+
+import com.gym.crm.repository.TraineeRepository;
+import com.gym.crm.repository.TrainerRepository;
+import com.gym.crm.repository.UserRepository;
 import com.gym.crm.util.UsernamePasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class TraineeService {
-    private TraineeDao traineeDao;
-    private TrainerDao trainerDao;
-    private TraineeStorage traineeStorage;
+    private TrainerRepository trainerRepository;
+    private TraineeRepository traineeRepository;
+    private UserRepository userRepository;
     private UsernamePasswordGenerator usernamePasswordGenerator;
 
     @Autowired
-    public void setTraineeDao(TraineeDao traineeDao) {
-        this.traineeDao = traineeDao;
-    }
+    public TraineeService(TrainerRepository trainerRepository, TraineeRepository traineeRepository,
+                            UserRepository userRepository) {
+        this.trainerRepository = trainerRepository;
+        this.traineeRepository = traineeRepository;
+        this.userRepository = userRepository;
 
-    @Autowired
-    public void setTrainerDao(TrainerDao trainerDao) {
-        this.trainerDao = trainerDao;
-    }
-
-    @Autowired
-    public void setTraineeStorage(TraineeStorage traineeStorage) {
-        this.traineeStorage = traineeStorage;
     }
 
     @Autowired
@@ -37,56 +35,57 @@ public class TraineeService {
 
     public Trainee createTrainee(Trainee trainee){
         validate(trainee);
-        trainee.setId(traineeStorage.generateId());
+        User user = trainee.getUser();
+
         String username = usernamePasswordGenerator.generateUsername(
-                trainee.getFirstName(),
-                trainee.getLastName(),
-                u -> traineeDao.exists(u) || trainerDao.exists(u)
+                user.getFirstName(),
+                user.getLastName(),
+                u -> userRepository.existsByUsername(u)
         );
-        trainee.setUsername(username);
+        user.setUsername(username);
 
-        trainee.setPassword(usernamePasswordGenerator.generatePassword());
-        trainee.setActive(true);
+        user.setPassword(usernamePasswordGenerator.generatePassword());
+        trainee.getUser().setActive(true);
 
-        traineeDao.save(trainee);
+        traineeRepository.save(trainee);
 
         return trainee;
     }
 
     public void updateTrainee(Trainee trainee){
         validateUpdate(trainee);
-        traineeDao.update(trainee);
+        traineeRepository.save(trainee);
     }
 
-    public void deleteTrainee(Long id){
-        if(id == null) throw new IllegalArgumentException("Id is null");
-        traineeDao.delete(id);
+    public void deleteTrainee(Trainee trainee){
+        if(trainee == null) throw new IllegalArgumentException("Trainee is null");
+        traineeRepository.delete(trainee);
 
     }
 
-    public Trainee getById(Long id){
+    public Optional<Trainee> getById(Long id){
         if(id == null) throw new IllegalArgumentException("Id is null");
-        return traineeDao.findById(id);
+        return traineeRepository.findById(id);
     }
 
     public Trainee getByUsername(String username){
         if(isBlank(username)) throw new IllegalArgumentException("Username is blank");
-        return traineeDao.findByUsername(username);
+        return traineeRepository.getByUserUsername(username);
     }
 
 
     private void validate(Trainee trainee) {
         if (trainee == null) throw new IllegalArgumentException("Trainee is null");
-        if (isBlank(trainee.getFirstName()))
+        if (isBlank(trainee.getUser().getFirstName()))
             throw new IllegalArgumentException("First name blank");
-        if (isBlank(trainee.getLastName()))
+        if (isBlank(trainee.getUser().getLastName()))
             throw new IllegalArgumentException("Last name is blank");
     }
 
     private void validateUpdate(Trainee trainee) {
         if (trainee == null || trainee.getId() == null)
             throw new IllegalArgumentException("Invalid trainee");
-        if (isBlank(trainee.getUsername()))
+        if (isBlank(trainee.getUser().getUsername()))
             throw new IllegalArgumentException("Username blank");
     }
 

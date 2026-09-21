@@ -1,14 +1,15 @@
 package com.gym.crm.facade;
 
-import com.gym.crm.model.Trainee;
-import com.gym.crm.model.Trainer;
-import com.gym.crm.model.Training;
+import com.gym.crm.entity.Trainee;
+import com.gym.crm.entity.Trainer;
+import com.gym.crm.entity.Training;
 import com.gym.crm.service.TraineeService;
 import com.gym.crm.service.TrainerService;
 import com.gym.crm.service.TrainingService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class GymFacade {
@@ -26,7 +27,7 @@ public class GymFacade {
         return traineeService.createTrainee(trainee);
     }
 
-    public Trainee getTraineeById(Long id){
+    public Optional<Trainee> getTraineeById(Long id){
         return traineeService.getById(id);
     }
 
@@ -38,15 +39,15 @@ public class GymFacade {
         traineeService.updateTrainee(trainee);
     }
 
-    public void deleteTrainee(Long id){
-        traineeService.deleteTrainee(id);
+    public void deleteTrainee(Trainee trainee){
+        traineeService.deleteTrainee(trainee);
     }
 
     public Trainer createTrainer(Trainer trainer){
         return trainerService.createTrainer(trainer);
     }
 
-    public Trainer getTrainerById(Long id){
+    public Optional<Trainer> getTrainerById(Long id){
         return trainerService.getById(id);
     }
 
@@ -62,7 +63,7 @@ public class GymFacade {
         return trainingService.createTraining(training);
     }
 
-    public Training getTrainingById(Long id){
+    public Optional<Training> getTrainingById(Long id){
         return trainingService.getById(id);
     }
 
